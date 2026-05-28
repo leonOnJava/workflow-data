@@ -1,55 +1,24 @@
-## 1. Core Definition
+Kontext & Problemstellung:
+    Die aktuelle Abbruchrate beim Login ist zu hoch, da Nutzer ihre Zugangsdaten vergessen und der Prozess zur Wiederherstellung unvollständig ist. Um den Support zu entlasten und die Benutzerfreundlichkeit zu erhöhen, muss das System um eine automatisierte Self-Service-Wiederherstellung erweitert werden.
 
-Openness to Experience measures an individual's preference for novelty, complexity, and variety versus familiarity and routine. It reflects curiosity about both inner worlds (feelings, ideas, imagination) and the outer world (art, culture, new activities). This trait captures intellectual curiosity, aesthetic sensitivity, and a willingness to challenge conventions. It is crucial for understanding creativity, adaptability to change, intellectual style, and tolerance for ambiguity.
+    System-Anforderungen (Functional Requirements):
 
-## 2. The Spectrum
+        Einstiegspunkt: Die bestehende Login-Maske benötigt ein klickbares Element („Passwort vergessen?“), das den Nutzer auf eine separate Eingabeseite weiterleitet.
 
-#### **High Openness: The "Explorer"**
+        Identifikation & Validierung: Auf der Folgeseite ist die Eingabe der registrierten E-Mail-Adresse erforderlich. Das System muss im Hintergrund prüfen, ob zu dieser Adresse ein aktiver Account existiert.
 
-Individuals scoring high in Openness are imaginative, curious, and drawn to novelty and beauty. They are mentally flexible and enjoy exploring new ideas and experiences.
+        Sicherheits-Richtlinie (User Enumeration): Aus Datenschutzgründen darf die Systemantwort keine Rückschlüsse darüber zulassen, ob die eingegebene E-Mail-Adresse im System existiert oder nicht. Die Benutzeroberfläche muss in beiden Fällen exakt dieselbe Erfolgsmeldung ausgeben („Falls ein Konto existiert, wurde eine E-Mail versendet“).
 
-- Actively seeks out novel experiences like trying exotic foods or traveling to unfamiliar places.
-- Enjoys abstract thinking, philosophical discussions, and contemplating hypotheticals.
-- Appreciates art, music, and beauty; frequently engages with creative works.
-- Readily questions tradition and conventional wisdom; willing to challenge established norms.
-- Is comfortable with ambiguity and complexity, not requiring immediate, definitive answers.
-- Possesses a vivid imagination and enjoys creative expression or daydreaming.
-- Embraces change and experimentation, viewing them as opportunities for growth.
+        Token-Generierung & Ablauf: Wenn das Konto existiert, generiert das System einen kryptografisch sicheren Validierungs-Token. Dieser Token darf eine maximale Lebensdauer von genau 120 Minuten besitzen. Nach Ablauf der Zeit ist der Link ungültig und ein Aufruf führt zu einer Fehlermeldung auf der Plattform.
 
-#### **Low Openness: The "Traditionalist"**
+        Kommunikations-Schnittstelle: Die Zustellung des Tokens erfolgt asynchron per E-Mail. Die Nachricht enthält einen personalisierten Link, der den Token als Parameter übergibt.
 
-Individuals scoring low in Openness are more conventional and practical, preferring the familiar over the unknown. They value stability, tradition, and concrete facts.
+        Passwort-Änderung & Restriktionen: Nach Klick auf den Link gelangt der Nutzer auf ein Formular zur Vergabe des neuen Passworts. Hierbei greift die globale Passwort-Richtlinie der Plattform:
 
-- Prefers familiar routines, predictable environments, and tried-and-true methods.
-- Values practical, concrete thinking over abstract or theoretical discussions.
-- Shows limited interest in arts or abstract culture, finding them uninteresting or pointless.
-- Respects tradition and established authority; is skeptical of radical or untested ideas.
-- Prefers clear-cut answers and straightforward solutions to complex problems.
-- Is grounded in present reality rather than imagination or hypotheticals.
-- Feels uncomfortable with unexpected change and prefers stability and predictability.
+            Mindestlänge: 12 Zeichen
 
-## 3. Sub-dimensions
+            Mindestens 1 numerisches Zeichen (0-9)
 
-1.  **Imagination (Fantasy):** The tendency to have a rich and vivid inner world.
-    -   _Description:_ High scorers use fantasy and daydreaming to create a more interesting inner life. They are highly imaginative and often get lost in thought. Low scorers are more oriented to facts and the present reality, seldom engaging in fantasy.
-    -   _Example:_ Spending free time building an intricate fictional world for a story, versus planning a practical home improvement project.
+            Mindestens 1 Sonderzeichen (z. B. !, @, #, $, %)
 
-2.  **Aesthetic Interests (Aesthetics):** The appreciation for art, music, and beauty.
-    -   _Description:_ High scorers are deeply moved by beauty in art and nature and become easily absorbed in it. Low scorers lack aesthetic sensitivity and show little interest in the arts, prioritizing utility over beauty.
-    -   _Example:_ Regularly visiting art galleries to contemplate paintings, versus seeing a museum visit as a boring obligation.
-
-3.  **Emotionality (Feelings):** The awareness and acceptance of one's own and others' emotions.
-    -   _Description:_ High scorers have good access to and awareness of their own nuanced feelings and value emotional experience. Low scorers are less aware of their feelings and tend not to express emotions openly or analyze them.
-    -   _Example:_ Easily identifying and articulating a subtle feeling like "wistfulness," versus only recognizing basic emotions like "happy" or "sad."
-
-4.  **Adventurousness (Actions):** The willingness to try new activities and break from routine.
-    -   _Description:_ High scorers are eager to try new activities, travel, and experience different things, finding routine boring. Low scorers feel uncomfortable with change and prefer familiar routines and experiences.
-    -   _Example:_ Intentionally ordering the most unfamiliar item on a restaurant menu, versus always ordering the same favorite dish.
-
-5.  **Intellect (Ideas):** The preference for abstract thought and intellectual curiosity.
-    -   _Description:_ High scorers are open-minded, love to play with ideas, and enjoy debating intellectual issues, puzzles, and riddles. Low scorers prefer dealing with concrete things or people and may find intellectual exercises a waste of time.
-    -   _Example:_ Subscribing to philosophy podcasts to explore theoretical concepts, versus preferring hands-on guides and how-to manuals.
-
-6.  **Liberalism (Values):** The readiness to challenge authority, convention, and traditional values.
-    -   _Description:_ High scorers are prepared to challenge conventions and traditional values in favor of new or progressive ones. Low scorers (psychological conservatives) prefer the security and stability brought by conformity to tradition.
-    -   _Example:_ Advocating for a radical restructuring of a company's hierarchy, versus defending the existing, time-tested organizational chart.
+        Abschluss: Nach erfolgreicher Änderung wird der Token sofort serverseitig invalidiert, sodass er kein zweites Mal verwendet werden kann. Der Nutzer wird zur Login-Seite weitergeleitet.
